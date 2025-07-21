@@ -1,56 +1,45 @@
-from sklearn.ensemble import RandomForestClassifier ###1. RandomForest
-from sklearn import svm ###2. SVM
-import xgboost as xgb ###3. XGB
-from sklearn.ensemble import GradientBoostingClassifier ###4.GB
-import time
-import pandas as pd
-import numpy as np
-from numpy import array
-import pickle
-import os
-from os import path
-import sklearn
-from sklearn.metrics import roc_auc_score, make_scorer, recall_score, accuracy_score, matthews_corrcoef, confusion_matrix
-from sklearn.model_selection import StratifiedKFold, cross_validate
-from hpsklearn import HyperoptEstimator, any_preprocessing, any_classifier
-from hpsklearn import random_forest_classifier, gradient_boosting_classifier, svc, xgboost_classification, k_neighbors_classifier
-from sklearn.svm import SVC
-from hyperopt import tpe, hp
 import argparse
-from utils import data_preprocessing
+import os
+import pickle
 
-if __name__=="__main__":
-    parser=argparse.ArgumentParser()
-    parser.add_argument('--file_name', type=str, default='example_train.csv', help='Path to the input file')
-    parser.add_argument('--model_name', type=str, default=None, help='User-defined model name')
-    args  =parser.parse_args()
-    print(args)
-    features = eval(open(f'./features.txt', 'r').read())
+import numpy as np
+import pandas as pd
 
-    print(f'Prediction model for {args.model_name}')
-    print(f'Loading the data set : {args.file_name}')
+from utils import data_preprocessing, load_features
 
-    # prprocessing data feature
-    df = pd.read_csv(args.file_name)
-    df['bioclass']=1
+def load_model(name: str):
+    """Load a pickled model from the default locations."""
+    for path in (f"models/{name}.pkl", f"{name}.pkl"):
+        if os.path.exists(path):
+            return pickle.load(open(path, "rb"))
+    raise FileNotFoundError(f"Model {name}.pkl not found")
+
+
+def predict(file_name: str, model_name: str):
+    features = load_features()
+    print(f"Prediction model for {model_name}")
+    print(f"Loading the data set : {file_name}")
+
+    df = pd.read_csv(file_name)
+    df["bioclass"] = 1
     scaled_data = data_preprocessing(df)
 
-    result_df = pd.DataFrame({'SMILES':scaled_data['SMILES']})
-    if path.exists(f'models/{args.model_name}.pkl'):
-        learner_model = pickle.load(open(f'models/{args.model_name}.pkl', 'rb'))
-    elif path.exists(f'{args.model_name}.pkl'):
-        learner_model = pickle.load(open(f'{args.model_name}.pkl','rb'))
-    else:
-        print('Check the model path (.pkl) !!')
-        exit(-1)
+    model = load_model(model_name)
 
-    # predict label (int)
-    predicted = learner_model.predict(scaled_data[features].values)
-    result_df[f'{args.model_name}']=learner_model.predict(scaled_data[features].values)
+    result_df = pd.DataFrame({"SMILES": scaled_data["SMILES"]})
+    result_df[model_name] = model.predict(scaled_data[features].values)
 
-    # predict prediction prob (float)
-    predict_proba = learner_model.predict_proba(scaled_data[features].values)
-    max_proba = np.max(predict_proba, axis=1)
-    result_df['pred_prob']=max_proba
-    print(f'Output for prediction of {args.model_name} \n {result_df}')
-    result_df.to_csv(f'{args.model_name}_predict_results.csv', index=False)
+    predict_proba = model.predict_proba(scaled_data[features].values)
+    result_df["pred_prob"] = np.max(predict_proba, axis=1)
+
+    print(f"Output for prediction of {model_name}\n{result_df}")
+    result_df.to_csv(f"{model_name}_predict_results.csv", index=False)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file_name", default="example_train.csv", help="Path to the input file")
+    parser.add_argument("--model_name", required=True, help="Model name without extension")
+    args = parser.parse_args()
+
+    predict(args.file_name, args.model_name)
