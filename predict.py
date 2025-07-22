@@ -1,3 +1,5 @@
+"""Predict ADMET properties using a pre-trained model."""
+
 from sklearn.ensemble import RandomForestClassifier ###1. RandomForest
 from sklearn import svm ###2. SVM
 import xgboost as xgb ###3. XGB
@@ -20,19 +22,19 @@ import argparse
 from utils import data_preprocessing
 
 if __name__=="__main__":
-    parser=argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
     parser.add_argument('--file_name', type=str, default='example_train.csv', help='Path to the input file')
     parser.add_argument('--model_name', type=str, default=None, help='User-defined model name')
-    args  =parser.parse_args()
+    args = parser.parse_args()
     print(args)
     features = eval(open(f'./features.txt', 'r').read())
 
     print(f'Prediction model for {args.model_name}')
     print(f'Loading the data set : {args.file_name}')
 
-    # prprocessing data feature
+    # Preprocess the input SMILES in the same way as during training
     df = pd.read_csv(args.file_name)
-    df['bioclass']=1
+    df['bioclass'] = 1
     scaled_data = data_preprocessing(df)
 
     result_df = pd.DataFrame({'SMILES':scaled_data['SMILES']})
@@ -44,11 +46,11 @@ if __name__=="__main__":
         print('Check the model path (.pkl) !!')
         exit(-1)
 
-    # predict label (int)
+    # Predict label (class) for each molecule
     predicted = learner_model.predict(scaled_data[features].values)
     result_df[f'{args.model_name}']=learner_model.predict(scaled_data[features].values)
 
-    # predict prediction prob (float)
+    # Probability of prediction for the positive class
     predict_proba = learner_model.predict_proba(scaled_data[features].values)
     max_proba = np.max(predict_proba, axis=1)
     result_df['pred_prob']=max_proba

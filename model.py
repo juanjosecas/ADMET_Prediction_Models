@@ -1,3 +1,5 @@
+"""Script for training ADMET classification models using Hyperopt-sklearn."""
+
 from sklearn.ensemble import RandomForestClassifier ###1. RandomForest
 from sklearn import svm ###2. SVM
 import xgboost as xgb ###3. XGB
@@ -22,6 +24,8 @@ from torch.utils.data import Dataset
 from dgllife.utils import ScaffoldSplitter
 
 class MoleculeDataset(Dataset):
+    """Simple dataset wrapper used for scaffold-based splitting."""
+
     def __init__(self, smiles, labels):
         self.smiles = smiles
         self.labels = labels
@@ -50,11 +54,17 @@ if __name__=="__main__":
         args.model_name = args.file_name[:-4]
     print(f'User-defined model name: {args.model_name}')
 
+    # ------------------------------------------------------------------
+    # Model training
+    # ------------------------------------------------------------------
     if args.training:
+        # load preprocessed train/test splits
         train_data = pd.read_csv(f'train_{args.file_name}')
         test_data = pd.read_csv(f'test_{args.file_name}')
         print(f'Loading train/test set: {len(train_data)}, {len(test_data)}')
-        print(f'Hyperparameters for hpsklearn \n max_eval : {args.max_eval} \n time_out : {args.time_out}')
+        print(
+            f'Hyperparameters for hpsklearn \n max_eval : {args.max_eval} \n time_out : {args.time_out}'
+        )
     
         clf_name = f'{args.max_eval}_{args.time_out}'
     
@@ -95,6 +105,9 @@ if __name__=="__main__":
         print(f'========== End of traininig model for {args.model_name} using {args.file_name}')
 
     if args.cross_validation:
+        # ------------------------------------------------------------------
+        # k-fold cross validation
+        # ------------------------------------------------------------------
         print(f'Start {args.k_fold}-fold cross validation using {args.file_name}')
         train_data = pd.read_csv(f'train_{args.file_name}')
         X = train_data[features]
