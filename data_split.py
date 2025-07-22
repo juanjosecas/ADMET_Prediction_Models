@@ -1,3 +1,5 @@
+"""Utility script to preprocess SMILES data and split into train/test sets."""
+
 import numpy as np
 import pandas as pd
 from rdkit import Chem
@@ -14,18 +16,19 @@ import os
 from utils import data_preprocessing
 
 if __name__=="__main__":
-    parser=argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
     parser.add_argument('--file_name', type=str, default='smiles.csv', help='Path to the input file')
     parser.add_argument('--split_mode', choices=['scaffold', 'stratify'], default='stratify', help='Seperate method of dataset for train/test set')
     parser.add_argument('--test_frac', type=float, default=0.2, help='Test set fraction (default: 0.2)')
-    args  =parser.parse_args()
+    args = parser.parse_args()
     
     df = pd.read_csv(args.file_name)
-    # preprocess from smiles to features
+    # Preprocess SMILES and compute features
     print(f'Start data pre-processing for {args.file_name}')
     df = data_preprocessing(df)
 
     if args.split_mode == 'stratify' :
+        # classic stratified split based on class labels
         print('stratified split')
         from sklearn.model_selection import train_test_split
         train_data, test_data = train_test_split(
@@ -40,6 +43,7 @@ if __name__=="__main__":
         train_data.to_csv(f'train_{args.file_name}',index=False)
         test_data.to_csv(f'test_{args.file_name}',index=False)
     elif args.split_mode =='scaffold' :
+        # scaffold-based split using molecular scaffolds
         print('scaffold-based split')
         from dgllife.utils import ScaffoldSplitter
         df = df.rename(columns={'SMILES': 'smiles'})
