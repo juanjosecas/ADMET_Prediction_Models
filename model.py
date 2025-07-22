@@ -1,25 +1,17 @@
-from sklearn.ensemble import RandomForestClassifier ###1. RandomForest
-from sklearn import svm ###2. SVM
-import xgboost as xgb ###3. XGB
-from sklearn.ensemble import GradientBoostingClassifier ###4.GB
-import time
-import pandas as pd
-import numpy as np
-from numpy import array
-import pickle
-import os
-from os import path
-import sklearn
-from sklearn.metrics import roc_auc_score, make_scorer, recall_score, accuracy_score, matthews_corrcoef, confusion_matrix
-from sklearn.model_selection import StratifiedKFold, cross_validate
-from hpsklearn import HyperoptEstimator, any_preprocessing, any_classifier
-from hpsklearn import random_forest_classifier, gradient_boosting_classifier, svc, xgboost_classification, k_neighbors_classifier
-from sklearn.svm import SVC
-from hyperopt import tpe, hp
 import argparse
-from utils import data_preprocessing
+import pickle
+import time
+
+import numpy as np
+import pandas as pd
+from hyperopt import tpe
+from hpsklearn import HyperoptEstimator, any_classifier, any_preprocessing
+from sklearn.metrics import roc_auc_score, confusion_matrix
+from sklearn.model_selection import StratifiedKFold
 from torch.utils.data import Dataset
 from dgllife.utils import ScaffoldSplitter
+
+from utils import data_preprocessing, load_features
 
 class MoleculeDataset(Dataset):
     def __init__(self, smiles, labels):
@@ -45,7 +37,7 @@ if __name__=="__main__":
 
     args  =parser.parse_args()
     print(args)
-    features = eval(open(f'./features.txt', 'r').read())
+    features = load_features()
     if args.model_name is None:
         args.model_name = args.file_name[:-4]
     print(f'User-defined model name: {args.model_name}')

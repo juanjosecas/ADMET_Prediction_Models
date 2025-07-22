@@ -6,13 +6,17 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 from rdkit.Chem import Descriptors, Lipinski, rdMolDescriptors
 import sklearn.metrics as metrics
 from sklearn.preprocessing import StandardScaler
+# For script usage
 import argparse
-import pickle
 import joblib
-import os
 #from hpsklearn.components import classifier
 
 pd.set_option('display.max_columns', None)
+
+def load_features(path: str = 'features.txt') -> list:
+    """Load feature names from a text file."""
+    with open(path, 'r') as f:
+        return eval(f.read())
 
 def data_preprocessing(tmp_df):
     org_df = len(tmp_df)
@@ -80,17 +84,14 @@ def standard_scaled(all_data):
 
     return pd.concat([results_df, all_data[['SMILES','bioclass']]], axis=1)
 
-if __name__=="__main__":
-    parser=argparse.ArgumentParser()
-    parser.add_argument('--file_name', type=str, default='Papp_final_data')
-    parser.add_argument('--feature_name', type=str, default='Caco2_permeability')
-    args  =parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file_name", type=str, default="test_example.csv")
+    args = parser.parse_args()
 
-    features = eval(open(f'./features.txt', 'r').read())#CYP1A2_inhibition/
-    print(len(features))
-    tmp_df = pd.read_csv('test_example.csv')
+    features = load_features()
+    print(f"Loaded {len(features)} features")
 
-    # preprocess the smiles
-    scaled_all_data = data_preprocessing(tmp_df)
-    print(scaled_all_data)
-    exit(-1)
+    df = pd.read_csv(args.file_name)
+    scaled = data_preprocessing(df)
+    print(scaled)
