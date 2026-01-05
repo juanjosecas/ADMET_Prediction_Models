@@ -20,6 +20,7 @@ ADMET properties are critical pharmacokinetic and safety parameters evaluated du
 ## Table of Contents
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Complete Workflow Notebook](#complete-workflow-notebook)
 - [Available Models](#available-models)
 - [Usage Guide](#usage-guide)
   - [Making Predictions](#making-predictions)
@@ -63,7 +64,7 @@ git clone https://github.com/CADD-SC/ADMET_Prediction_Models.git
 cd ADMET_Prediction_Models
 
 # Install dependencies
-pip install scikit-learn numpy pandas rdkit hyperopt hpsklearn xgboost dgllife torch
+pip install -r requirements.txt
 ```
 
 ### Downloading Pre-trained Models
@@ -96,6 +97,32 @@ gdown --folder 1mbBZt7pEfGu7iqt7WCq5wYqiwoAxpKpB
 ```
 
 The models should be in the `models/` directory and the scaler in `scaler/new_scaler.pkl`.
+
+## Complete Workflow Notebook
+
+**NEW**: For a comprehensive, interactive walkthrough of all ADMET prediction features, check out the Jupyter notebook:
+
+📓 **[ADMET_Complete_Workflow.ipynb](ADMET_Complete_Workflow.ipynb)**
+
+This notebook provides a complete end-to-end workflow demonstrating:
+- ✓ Data loading and preprocessing with molecular feature calculation
+- ✓ Making predictions using all 11 pre-trained ADMET models
+- ✓ Comprehensive visualization of results (distribution charts, heatmaps, radar charts)
+- ✓ Individual molecule ADMET profile analysis
+- ✓ Data splitting strategies (stratified and scaffold-based)
+- ✓ Custom model training workflow
+- ✓ Exporting results in multiple formats
+
+**To use the notebook:**
+```bash
+# Launch Jupyter
+jupyter notebook ADMET_Complete_Workflow.ipynb
+
+# Or use JupyterLab
+jupyter lab ADMET_Complete_Workflow.ipynb
+```
+
+The notebook is designed to be self-contained with detailed explanations and can serve as both a tutorial and a template for your own ADMET prediction workflows.
 
 ## Quick Start
 
