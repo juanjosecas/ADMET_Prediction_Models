@@ -9,6 +9,9 @@ This document describes the complete ADMET workflow notebook that was created to
 A comprehensive Jupyter notebook (27KB, 28 cells) that provides an end-to-end workflow for ADMET predictions.
 
 **Notebook Structure:**
+
+The notebook contains 8 main sections:
+
 - **Section 1: Setup and Imports** - Import all necessary libraries and modules
 - **Section 2: Data Loading and Preprocessing** - Load molecular data and visualize
 - **Section 3: Making Predictions** - Use all 11 pre-trained ADMET models
